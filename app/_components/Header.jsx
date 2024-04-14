@@ -40,7 +40,13 @@ function Header() {
           {' '}
           <Plus className="h-5 w-5" /> Post Your Ad
         </Button>
-        {isSignedIn ? <UserButton /> : <Button variant="outline">Login</Button>}
+        {isSignedIn ? (
+          <UserButton />
+        ) : (
+          <Link href={'/sign-in'}>
+            <Button variant="outline">Login</Button>
+          </Link>
+        )}
       </div>
     </div>
   );
