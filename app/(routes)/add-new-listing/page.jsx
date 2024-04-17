@@ -4,13 +4,17 @@ import GoogleAddressSearch from '@/app/_components/GoogleAddressSearch';
 import { Button } from '@/components/ui/button';
 import supabase from '@/utils/supabase';
 import { useUser } from '@clerk/nextjs';
+import { Loader } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 function AddNewListing() {
   const [selectedAddress, setSelectedAddress] = useState();
-  const [coordinates, setCoordinates] = useState();
+  const [coordinates, setCoordinates] = useState(false);
   const { user } = useUser();
+  const [loader, setLoader] = useState();
   const saveAddressData = async () => {
+    setLoader(true);
     console.log(selectedAddress, coordinates);
 
     const { data, error } = await supabase
@@ -24,10 +28,12 @@ function AddNewListing() {
       ])
       .select();
     if (data) {
-      console.log('Saved data is here: ', data);
+      setLoader(false);
+      toast('Address data saved successfully!');
     }
     if (error) {
       console.log('The error occured: ', error);
+      toast('An error occurred: ', error);
     }
   };
   return (
@@ -43,10 +49,10 @@ function AddNewListing() {
             setCoordinates={(value) => setCoordinates(value)}
           />
           <Button
-            disabled={!selectedAddress || !coordinates}
+            disabled={!selectedAddress || !coordinates || loader}
             onClick={saveAddressData}
           >
-            Next
+            {loader ? <Loader className="animate-spin" /> : 'Next'}
           </Button>
         </div>
       </div>
