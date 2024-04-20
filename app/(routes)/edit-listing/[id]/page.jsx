@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -23,6 +23,7 @@ function EditListing({ params }) {
   // const params = usePathname();
   const { user } = useUser();
   const router = useRouter();
+  const [defaultListing, setdefaultListing] = useState([]);
 
   useEffect(() => {
     user && validateUserListing();
@@ -35,6 +36,9 @@ function EditListing({ params }) {
       .eq('createdBy', user?.primaryEmailAddress.emailAddress)
       .eq('id', params.id);
 
+    if (listings) {
+      setdefaultListing(listings[0]);
+    }
     if (listings?.length <= 0) {
       router.replace('/');
     }
@@ -74,7 +78,7 @@ function EditListing({ params }) {
                   <div className="flex flex-col gap-2">
                     <h2 className="text-lg text-slate-500">Sell or Rent</h2>
                     <RadioGroup
-                      defaultValue="Sell"
+                      defaultValue={defaultListing?.type}
                       onValueChange={(val) => (values.type = val)}
                     >
                       <div className="flex items-center space-x-2">
@@ -95,7 +99,13 @@ function EditListing({ params }) {
                       name="propertyType"
                     >
                       <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select Property type" />
+                        <SelectValue
+                          placeholder={
+                            defaultListing?.propertyType
+                              ? defaultListing.propertyType
+                              : 'Select Property type'
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Single Family House">
@@ -114,6 +124,7 @@ function EditListing({ params }) {
                       placeholder="Ex.2"
                       name="bedRoom"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.bedRoom}
                     />
                   </div>
                   <div className="flex gap-2 flex-col">
@@ -122,6 +133,7 @@ function EditListing({ params }) {
                       placeholder="Ex.2"
                       name="bathroom"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.bathroom}
                     />
                   </div>
                   <div className="flex gap-2 flex-col">
@@ -130,6 +142,7 @@ function EditListing({ params }) {
                       placeholder="Ex.1900 sq.ft"
                       name="builtIn"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.builtIn}
                     />
                   </div>
                   <div className="flex gap-2 flex-col">
@@ -138,6 +151,7 @@ function EditListing({ params }) {
                       placeholder="Ex.2"
                       name="parking"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.parking}
                     />
                   </div>
                   <div className="flex gap-2 flex-col">
@@ -146,6 +160,7 @@ function EditListing({ params }) {
                       placeholder=""
                       name="lotSize"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.lotSize}
                     />
                   </div>
                   <div className="flex gap-2 flex-col">
@@ -154,6 +169,7 @@ function EditListing({ params }) {
                       placeholder="Ex.1900"
                       name="area"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.area}
                     />
                   </div>
                   <div className="flex gap-2 flex-col">
@@ -162,6 +178,7 @@ function EditListing({ params }) {
                       placeholder="400000"
                       name="sellingPrice"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.sellingPrice}
                     />
                   </div>
                   <div className="flex gap-2 flex-col">
@@ -170,6 +187,7 @@ function EditListing({ params }) {
                       placeholder="100"
                       name="hoa"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.hoa}
                     />
                   </div>
                 </div>
@@ -180,6 +198,7 @@ function EditListing({ params }) {
                       id="description"
                       name="description"
                       onChange={handleChange}
+                      defaultValue={defaultListing?.description}
                     />
                   </div>
                 </div>
