@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import supabase from '@/utils/supabase';
 import { useUser } from '@clerk/nextjs';
 import { Loader } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -13,6 +14,7 @@ function AddNewListing() {
   const [coordinates, setCoordinates] = useState(false);
   const { user } = useUser();
   const [loader, setLoader] = useState();
+  const router = useRouter();
   const saveAddressData = async () => {
     setLoader(true);
     console.log(selectedAddress, coordinates);
@@ -30,6 +32,7 @@ function AddNewListing() {
     if (data) {
       setLoader(false);
       toast('Address data saved successfully!');
+      router.replace('/edit-listing/' + `${data[0].id}`);
     }
     if (error) {
       console.log('The error occured: ', error);

@@ -9,17 +9,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import supabase from '@/utils/supabase';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Formik } from 'formik';
 import { Button } from '@/components/ui/button';
 import { useParams, usePathname } from 'next/navigation';
+import { toast } from 'sonner';
+import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
-function EditListing() {
-  const params = usePathname();
+function EditListing({ params }) {
+  // const params = usePathname();
+  const { user } = useUser();
+  const router = useRouter();
+
   useEffect(() => {
-    console.log(params.split('/')[2]);
-  }, []);
+    user && validateUserListing();
+  }, [user]);
+
+  const validateUserListing = async () => {
+    let { data: listings, error } = await supabase
+      .from('listings')
+      .select('*')
+      .eq('createdBy', user?.primaryEmailAddress.emailAddress)
+      .eq('id', params.id);
+
+    if (listings?.length <= 0) {
+      router.replace('/');
+    }
+  };
+  const onSubmitHandler = async (payload) => {
+    const { data, error } = await supabase
+      .from('listings')
+      .update(payload)
+      .eq('id', params.id)
+      .select();
+    if (data) {
+      console.log('The payload used: ', data);
+      toast('Listing updated successfully');
+    }
+  };
+
   return (
     <div className="px-10 md:px-36 my-10">
       <h2 className="font-bold text-2xl">
@@ -32,6 +63,7 @@ function EditListing() {
         }}
         onSubmit={(values) => {
           console.log(values);
+          onSubmitHandler(values);
         }}
       >
         {({ values, handleChange, handleSubmit }) => (
@@ -80,7 +112,7 @@ function EditListing() {
                     <h2 className="text-gray-500">Bedroom</h2>
                     <Input
                       placeholder="Ex.2"
-                      name="bedroom"
+                      name="bedRoom"
                       onChange={handleChange}
                     />
                   </div>
@@ -96,7 +128,7 @@ function EditListing() {
                     <h2 className="text-gray-500">Built in</h2>
                     <Input
                       placeholder="Ex.1900 sq.ft"
-                      name="buitin"
+                      name="builtIn"
                       onChange={handleChange}
                     />
                   </div>
@@ -128,7 +160,7 @@ function EditListing() {
                     <h2 className="text-gray-500">Selling Price(Ksh)</h2>
                     <Input
                       placeholder="400000"
-                      name="sellingprice"
+                      name="sellingPrice"
                       onChange={handleChange}
                     />
                   </div>
