@@ -20,6 +20,17 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import FileUpload from '../_components/FileUpload';
 import Loader from '../Loading';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 function EditListing({ params }) {
   // const params = usePathname();
@@ -57,8 +68,10 @@ function EditListing({ params }) {
       .select();
     if (data) {
       toast('Listing updated successfully');
+      setLoading(false);
     }
     for (const image of images) {
+      setLoading(true);
       /*Handle logic to store images in supabase bucket*/
       const file = image;
       const fileName = Date.now().toString();
@@ -88,6 +101,18 @@ function EditListing({ params }) {
         }
       }
       setLoading(false);
+    }
+  };
+  const publishListingHandler = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('listings')
+      .update({ active: true })
+      .eq('id', params?.id)
+      .select();
+    if (data) {
+      setLoading(false);
+      toast('Listing published successfully!');
     }
   };
 
@@ -253,16 +278,36 @@ function EditListing({ params }) {
                   <Button
                     variant="outline"
                     className="text-primary border-primary"
+                    disabled={loading}
                   >
-                    Save
+                    {loading ? <Loader className="animate-spin" /> : 'Save'}
                   </Button>
-                  <Button className="" disabled={loading}>
-                    {loading ? (
-                      <Loader className="animate-spin" />
-                    ) : (
-                      'Save & Publish'
-                    )}
-                  </Button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button className="" disabled={loading}>
+                        {loading ? (
+                          <Loader className="animate-spin" />
+                        ) : (
+                          'Save & Publish'
+                        )}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Ready to publish?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Do you really want to publish this listing?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={publishListingHandler}>
+                          {loading ? <Loader /> : 'Continue'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </div>
