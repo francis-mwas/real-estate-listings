@@ -14,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Formik } from 'formik';
 import { Button } from '@/components/ui/button';
-import { useParams, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
