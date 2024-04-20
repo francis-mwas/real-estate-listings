@@ -18,12 +18,16 @@ import { useParams, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
+import FileUpload from '../_components/FileUpload';
+import Loader from '../Loading';
 
 function EditListing({ params }) {
   // const params = usePathname();
   const { user } = useUser();
   const router = useRouter();
   const [defaultListing, setdefaultListing] = useState([]);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     user && validateUserListing();
@@ -32,11 +36,12 @@ function EditListing({ params }) {
   const validateUserListing = async () => {
     let { data: listings, error } = await supabase
       .from('listings')
-      .select('*')
+      .select('*, listingImages(listing_id, url)')
       .eq('createdBy', user?.primaryEmailAddress.emailAddress)
       .eq('id', params.id);
 
     if (listings) {
+      console.log('The data is here: ', listings);
       setdefaultListing(listings[0]);
     }
     if (listings?.length <= 0) {
@@ -44,14 +49,45 @@ function EditListing({ params }) {
     }
   };
   const onSubmitHandler = async (payload) => {
+    setLoading(true);
     const { data, error } = await supabase
       .from('listings')
       .update(payload)
       .eq('id', params.id)
       .select();
     if (data) {
-      console.log('The payload used: ', data);
       toast('Listing updated successfully');
+    }
+    for (const image of images) {
+      /*Handle logic to store images in supabase bucket*/
+      const file = image;
+      const fileName = Date.now().toString();
+      const fileExt = fileName.split('.').pop();
+      const { data, error } = await supabase.storage
+        .from('listingImages')
+        .upload(`${fileName}`, file, {
+          contentType: `image/${fileExt}`,
+          upsert: false,
+        });
+
+      if (error) {
+        toast('Error while uploading images');
+        setLoading(false);
+      } else {
+        const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL + fileName;
+        //save image urls in listingImages table
+        const { data, error } = await supabase
+          .from('listingImages')
+          .insert({
+            url: imageUrl,
+            listing_id: params?.id,
+          })
+          .select();
+        if (error) {
+          setLoading(false);
+        }
+      }
+      setLoading(false);
     }
   };
 
@@ -64,6 +100,8 @@ function EditListing({ params }) {
         initialValues={{
           type: '',
           propertyType: '',
+          profileImage: user?.imageUrl,
+          fullName: user?.fullName,
         }}
         onSubmit={(values) => {
           console.log(values);
@@ -202,6 +240,15 @@ function EditListing({ params }) {
                     />
                   </div>
                 </div>
+                <div>
+                  <h2 className="font-lg text-gray-500 my-3">
+                    Upload Listing Images
+                  </h2>
+                  <FileUpload
+                    setImages={(images) => setImages(images)}
+                    imageList={defaultListing?.listingImages}
+                  />
+                </div>
                 <div className="flex gap-7 justify-end">
                   <Button
                     variant="outline"
@@ -209,7 +256,13 @@ function EditListing({ params }) {
                   >
                     Save
                   </Button>
-                  <Button className="">Save & Publish</Button>
+                  <Button className="" disabled={loading}>
+                    {loading ? (
+                      <Loader className="animate-spin" />
+                    ) : (
+                      'Save & Publish'
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
