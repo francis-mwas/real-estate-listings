@@ -15,7 +15,10 @@ function ListingMainView({ type }) {
       .from('listings')
       .select('*, listingImages(listing_id, url)')
       .eq('active', true)
-      .eq('type', type);
+      .eq('type', type)
+      .order('id', {
+        ascending: false,
+      });
     if (listings) {
       console.log(listings);
       setListings(listings);
