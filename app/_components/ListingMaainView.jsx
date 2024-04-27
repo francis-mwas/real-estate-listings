@@ -9,6 +9,9 @@ function ListingMainView({ type }) {
   useEffect(() => {
     getListings();
   }, []);
+  const handleSearchClick = (e) => {
+    e.preventDefault();
+  };
 
   const getListings = async () => {
     let { data: listings, error } = await supabase
@@ -30,7 +33,7 @@ function ListingMainView({ type }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2">
       <div>
-        <Listings listings={listings} />
+        <Listings listings={listings} handleSearchClick={handleSearchClick} />
       </div>
       <div>Map view area</div>
     </div>
