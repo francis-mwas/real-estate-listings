@@ -7,21 +7,35 @@ import { toast } from 'sonner';
 function ListingMainView({ type }) {
   const [listings, setListings] = useState([]);
   const [searchByAddress, setSearchByAddress] = useState([]);
+  const [bedCount, setBedCount] = useState(0);
+  const [bathCount, setBathCount] = useState(0);
+  const [parkingCount, setParkingCount] = useState(0);
+  const [homeType, setHomeType] = useState();
+
   useEffect(() => {
     getListings();
   }, []);
   const handleSearchClick = async (e) => {
     const passedAddress =
       searchByAddress?.value?.structured_formatting?.main_text;
-    let { data: listings, error } = await supabase
+    let query = await supabase
       .from('listings')
       .select('*, listingImages(listing_id, url)')
       .eq('active', true)
       .eq('type', type)
+      .gte('bathroom', bathCount)
+      .gte('bedRoom', bedCount)
+      .gte('parking', parkingCount)
       .like('address', '%' + passedAddress + '%')
       .order('id', {
         ascending: false,
       });
+    const { data: listings, error } = await query;
+
+    if (homeType) {
+      query = query.ew('propertyType', homeType);
+    }
+
     if (listings) {
       setListings(listings);
     }
@@ -51,6 +65,10 @@ function ListingMainView({ type }) {
           listings={listings}
           handleSearchClick={handleSearchClick}
           searchByAddress={(address) => setSearchByAddress(address)}
+          setBathCount={setBathCount}
+          setBedCount={setBedCount}
+          setparkingCount={setParkingCount}
+          setHomeType={setHomeType}
         />
       </div>
       <div>Map view area</div>

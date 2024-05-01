@@ -3,8 +3,17 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import GoogleAddressSearch from './GoogleAddressSearch';
 import { Button } from '@/components/ui/button';
+import FilterSection from './FilterSection';
 
-function Listings({ listings, handleSearchClick, searchByAddress }) {
+function Listings({
+  listings,
+  handleSearchClick,
+  searchByAddress,
+  setBathCount,
+  setBedCount,
+  setparkingCount,
+  setHomeType,
+}) {
   const [address, setAddress] = useState();
   return (
     <div>
@@ -25,6 +34,15 @@ function Listings({ listings, handleSearchClick, searchByAddress }) {
           Search
         </Button>
       </div>
+      <div>
+        <FilterSection
+          setBathCount={setBathCount}
+          setBedCount={setBedCount}
+          setparkingCount={setparkingCount}
+          setHomeType={setHomeType}
+        />
+      </div>
+
       {address && (
         <div className="px-3 my-5">
           <h2 className="text-xl">
