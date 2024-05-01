@@ -1,24 +1,46 @@
 import { Bath, BedDouble, MapPin, Ruler, Search } from 'lucide-react';
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import GoogleAddressSearch from './GoogleAddressSearch';
 import { Button } from '@/components/ui/button';
 
-function Listings({ listings, handleSearchClick }) {
+function Listings({ listings, handleSearchClick, searchByAddress }) {
+  const [address, setAddress] = useState();
   return (
     <div>
       <div className="p-5 flex gap-5">
-        <GoogleAddressSearch selectedAddress={(value) => console.log(value)} />
+        <GoogleAddressSearch
+          selectedAddress={(address) => {
+            searchByAddress(address);
+            setAddress(address);
+          }}
+          setCoordinates={(coordinates) =>
+            console.log('The passed cordinates: ', coordinates)
+          }
+        />
+
         <Button onClick={handleSearchClick} className="flex gap-2">
           {' '}
           <Search className="h-4 w-4" />
           Search
         </Button>
       </div>
+      {address && (
+        <div className="px-3 my-5">
+          <h2 className="text-xl">
+            {' '}
+            Found <span className="font-bold"> {listings?.length}</span> result
+            in <span className="text-primary font-bold"> {address?.label}</span>
+          </h2>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {listings.length > 0
           ? listings?.map((item, index) => (
-              <div className="p-3 hover:border hover:border-primary cursor-pointer rounded-lg">
+              <div
+                className="p-3 hover:border hover:border-primary cursor-pointer rounded-lg"
+                key={index}
+              >
                 <Image
                   src={item.listingImages[0].url}
                   width={800}

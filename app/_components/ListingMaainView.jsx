@@ -6,11 +6,25 @@ import { toast } from 'sonner';
 
 function ListingMainView({ type }) {
   const [listings, setListings] = useState([]);
+  const [searchByAddress, setSearchByAddress] = useState([]);
   useEffect(() => {
     getListings();
   }, []);
-  const handleSearchClick = (e) => {
-    e.preventDefault();
+  const handleSearchClick = async (e) => {
+    const passedAddress =
+      searchByAddress?.value?.structured_formatting?.main_text;
+    let { data: listings, error } = await supabase
+      .from('listings')
+      .select('*, listingImages(listing_id, url)')
+      .eq('active', true)
+      .eq('type', type)
+      .like('address', '%' + passedAddress + '%')
+      .order('id', {
+        ascending: false,
+      });
+    if (listings) {
+      setListings(listings);
+    }
   };
 
   const getListings = async () => {
@@ -33,7 +47,11 @@ function ListingMainView({ type }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2">
       <div>
-        <Listings listings={listings} handleSearchClick={handleSearchClick} />
+        <Listings
+          listings={listings}
+          handleSearchClick={handleSearchClick}
+          searchByAddress={(address) => setSearchByAddress(address)}
+        />
       </div>
       <div>Map view area</div>
     </div>
