@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 // import { GoogleMap, LoadScript } from '@react-google-maps/api';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import MapMapper from './MapMapper';
 
 const containerStyle = {
   width: '100%',
@@ -11,7 +12,7 @@ const center = {
   lat: -3.745,
   lng: -38.523,
 };
-function GoogleMapSection({ coordinates }) {
+function GoogleMapSection({ coordinates, listings }) {
   // console.log('The coordinates: ', coordinates);
 
   const [center, setCenter] = useState({
@@ -51,7 +52,9 @@ function GoogleMapSection({ coordinates }) {
         onUnmount={onUnmount}
       >
         {/* Child components, such as markers, info windows, etc. */}
-        <></>
+        {listings?.map((listing, index) => (
+          <MapMapper key={index} listing={listing} />
+        ))}
       </GoogleMap>
     </div>
   );

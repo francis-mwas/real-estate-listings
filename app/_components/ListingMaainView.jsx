@@ -75,7 +75,7 @@ function ListingMainView({ type }) {
         />
       </div>
       <div className="fixed right-10 h-full md:w-[350px] lg:w-[450px] xl:w-[650px] 2xl:w-[850px]">
-        <GoogleMapSection coordinates={coordinates} />
+        <GoogleMapSection coordinates={coordinates} listings={listings} />
       </div>
     </div>
   );
