@@ -13,6 +13,7 @@ function Listings({
   setBedCount,
   setparkingCount,
   setHomeType,
+  setCoordinates,
 }) {
   const [address, setAddress] = useState();
   return (
@@ -23,9 +24,7 @@ function Listings({
             searchByAddress(address);
             setAddress(address);
           }}
-          setCoordinates={(coordinates) =>
-            console.log('The passed cordinates: ', coordinates)
-          }
+          setCoordinates={setCoordinates}
         />
 
         <Button onClick={handleSearchClick} className="flex gap-2">
